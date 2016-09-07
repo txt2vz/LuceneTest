@@ -32,6 +32,7 @@ FieldType ft = new FieldType();
 ft.setIndexOptions( IndexOptions.DOCS_AND_FREQS_AND_POSITIONS );
 ft.setStoreTermVectors( true );
 ft.setStoreTermVectorPositions( true );
+ft.setStored(true)
 ft.setTokenized( true );
 
 Directory indexDir = new RAMDirectory();
@@ -40,10 +41,11 @@ IndexWriter w = new IndexWriter(indexDir, config);
 
 addDoc(w, "one fish two fish", ft);
 addDoc(w, "red fish blue fish", ft);
+addDoc(w, "black fish blue fish", ft);
 
 w.close();
 
-String querystr =  "red";
+String querystr =  "blue";
 Query q = new QueryParser( "contents", analyzer).parse(querystr);
 
 int hitsPerPage = 10;
@@ -57,9 +59,18 @@ println "Found " + hits.length + " hits."
 
 Bits liveDocs = MultiFields.getLiveDocs(reader);
 //for (int i=0; i<reader.maxDoc(); i++) {
+def st = ["contents"] as Set
 
-reader.maxDoc().times{docNumber ->
+hits.each{
 	
+	int docNumber = it.doc;
+	Document d = searcher.doc(docNumber);
+	println "d " + d.get("contents")
+
+//}
+
+//reader.maxDoc().times{docNumber ->
+
 	if (liveDocs == null || liveDocs.get(docNumber)) {
 
 		println "docNumer $docNumber  **********************************"
@@ -99,5 +110,5 @@ def private addDoc(IndexWriter w, String text, FieldType ft) throws IOException 
 	Document doc = new Document();
 	Field f = new Field("contents", text, ft)
 	doc.add(f);
-	w.addDocument(doc);
+	w.addDocument(doc);	
 }
