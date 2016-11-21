@@ -102,7 +102,6 @@ hits.each{
 		}
 	}
 }
-
 reader.close();
 
 def private addDoc(IndexWriter w, String text, FieldType ft) throws IOException {
